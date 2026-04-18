@@ -234,24 +234,25 @@ def _build_alert_match_message(match):
 
 
 def send_telegram_message(text, chat_id=None, reply_markup=None):
-    bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id = chat_id or os.getenv("TELEGRAM_CHAT_ID")
-    if not bot_token or not chat_id:
+    bot_token = str(os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
+    chat_id = str(chat_id or os.getenv("TELEGRAM_CHAT_ID") or "").strip()
+    if not bot_token or not chat_id or not str(text or "").strip():
         return False
 
     payload_dict = {
         "chat_id": chat_id,
-        "text": text,
+        "text": str(text),
         "disable_web_page_preview": "true",
     }
     if reply_markup:
-        payload_dict["reply_markup"] = json.dumps(reply_markup)
+        payload_dict["reply_markup"] = json.dumps(reply_markup, ensure_ascii=False)
 
-    payload = parse.urlencode(payload_dict).encode("utf-8")
+    payload = parse.urlencode(payload_dict, encoding="utf-8").encode("utf-8")
     url = f"{TELEGRAM_API_BASE}/bot{bot_token}/sendMessage"
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     try:
-        req = request.Request(url, data=payload, method="POST")
+        req = request.Request(url, data=payload, headers=headers, method="POST")
         with request.urlopen(req, timeout=10) as response:
             body = response.read().decode("utf-8")
             data = json.loads(body)
