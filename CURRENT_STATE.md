@@ -25,3 +25,20 @@
 ## Notes
 - Git history is insufficient for a clean commit-level revert, so rollback was done by code inspection.
 - Stability was prioritized over preserving experimental layers.
+
+## N8N Archive Note
+- Date: `2026-04-14`
+- Archived workflows:
+  - `AI Rig — Health Check`
+  - `AI Rig — FFmpeg Render Job`
+  - `AI Rig — FFmpeg Self Test`
+  - `Master Shorts Pipeline — AI Rig + Metadata`
+  - `Master Shorts Pipeline — AI Rig + Metadata + Notify`
+  - `AI Rig — Video Agent Contour`
+  - `AI Rig — Video Agent Render Job`
+  - `AI Rig — Video Agent Metadata`
+- Kept active:
+  - `Master Shorts Pipeline — AI Rig`
+- Archive method:
+  - `isArchived = 1` in local `n8n` database
+  - no workflow was deleted

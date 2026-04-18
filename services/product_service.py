@@ -16,6 +16,7 @@ from services.offer_ranking import (
     select_best_offer,
 )
 from services.product_family import derive_display_name, derive_family_key
+from services.product_urls import validate_listing_url
 from services.search import is_exact_match, is_prefix_token_match, normalize
 
 
@@ -31,7 +32,7 @@ class ProductService:
     def _filter_products_by_query(self, products, query):
         normalized_query = normalize(query)
         if not normalized_query:
-            return []
+            return products or []
 
         exact_matches = [
             product
@@ -105,10 +106,17 @@ class ProductService:
         return inserted_count
 
     def add_product(self, product, user_id=None):
+        url = str(product.get("url", "")).strip()
+        if not validate_listing_url(url):
+            return {
+                "ok": False,
+                "message": "A real listing URL is required.",
+            }
+
         normalized_product = {
             "name": str(product.get("name", "")).strip(),
             "price": float(product.get("price", 0)),
-            "url": str(product.get("url", "")).strip(),
+            "url": url,
             "source": str(product.get("source", "")).strip(),
             "image": str(product.get("image", "")).strip(),
             "family_key": derive_family_key(product.get("name", "")),
@@ -131,10 +139,17 @@ class ProductService:
         original_price=None,
         user_id=None,
     ):
+        normalized_url = str(url or "").strip()
+        if not validate_listing_url(normalized_url):
+            return {
+                "ok": False,
+                "message": "A real listing URL is required.",
+            }
+
         normalized_product = {
             "name": str(name or "").strip(),
             "price": float(price or 0),
-            "url": str(url or "").strip(),
+            "url": normalized_url,
             "source": str(source or "").strip(),
             "image": "",
             "family_key": derive_family_key(name),
